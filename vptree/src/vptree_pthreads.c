@@ -115,6 +115,9 @@ vptree* subtree_seq(subtree_args* args) {
 
   int k = (left + right - 1) / 2;
   tree->md = qselect(args->points, left, right - 1, k);
+  while (k < right - 1 && args->points[k + 1].dist <= tree->md) {
+    ++k;
+  }
 
   subtree_args inner_args = *args;
   inner_args.left = left;
@@ -187,6 +190,9 @@ void* subtree(void* p) {
 
   int k = (left + right - 1) / 2;
   tree->md = qselect(args->points, left, right - 1, k);
+  while (k < right - 1 && args->points[k + 1].dist <= tree->md) {
+    ++k;
+  }
 
   subtree_args inner_args = *args;
   inner_args.left = left;
