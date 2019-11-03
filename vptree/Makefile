@@ -9,9 +9,13 @@ all: lib
 lib: $(addsuffix .a, $(addprefix lib/vptree_, $(TYPES)))
 
 lib/%.a: %.o
+	mkdir -p lib
 	ar rcs $@ $<
 
-%.o: src/%.c
+vptree_sequential.o: src/vptree_sequential.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+vptree_pthreads.o: src/vptree_pthreads.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 vptree_openmp.o: src/vptree_openmp.c
