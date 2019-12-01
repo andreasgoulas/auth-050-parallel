@@ -142,11 +142,11 @@ void merge(knnresult* out, knnresult* tmp, int n, int k) {
   for (int qi = 0; qi < n; ++qi) {
     for (int i = 0; i < k; ++i) {
       if (tmp->ndist[qi * k] < out->ndist[i + qi * k]) {
-        double dist = tmp->ndist[qi * k];
-        int idx = tmp->nidx[qi * k];
+        double dist = out->ndist[i + qi * k];
+        int idx = out->nidx[i + qi * k];
 
-        out->ndist[i + qi * k] = dist;
-        out->nidx[i + qi * k] = idx;
+        out->ndist[i + qi * k] = tmp->ndist[qi * k];
+        out->nidx[i + qi * k] = tmp->nidx[qi * k];
 
         int j;
         for (j = 1; j < k && tmp->ndist[j + qi * k] < dist; ++j) {
