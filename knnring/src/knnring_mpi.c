@@ -255,10 +255,10 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
 #endif
 
 #if TIME_COMM
-  double max_time;
-  MPI_Reduce(&total_time, &max_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  double time_sum;
+  MPI_Reduce(&total_time, &time_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   if (rank == 0) {
-    printf("Mean Comm Time: %fs\n", total_time / size);
+    printf("Mean Comm Time: %fs\n", time_sum / size);
   }
 #endif
 
