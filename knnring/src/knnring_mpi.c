@@ -9,8 +9,11 @@
 #include <mpi.h>
 #include <cblas.h>
 
-// Flag indicating whether to perform global reductions.
+// REDUCE controls whether to perform global reductions.
 #define REDUCE 1
+
+// TIME_COMM controls whether to measure the communication cost.
+#define TIME_COMM 1
 
 #define SWAP(T, x, y) \
   do { \
@@ -182,6 +185,10 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+#if TIME_COMM
+  double total_time = 0.0;
+#endif
+
   for (int i = 0; i < size; ++i) {
     MPI_Request send_request, recv_request;
     if (i != size - 1) {
@@ -210,8 +217,16 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
     }
 
     if (i != size - 1) {
+#if TIME_COMM
+      double time_start = MPI_Wtime();
+#endif
       MPI_Wait(&recv_request, MPI_STATUS_IGNORE);
       MPI_Wait(&send_request, MPI_STATUS_IGNORE);
+#if TIME_COMM
+      double time_end = MPI_Wtime();
+      total_time += time_end - time_start;
+#endif
+
       SWAP(double*, y, z);
     }
   }
@@ -236,6 +251,14 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
   MPI_Reduce(&max, &global_max, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   if (rank == 0) {
     printf("Global min: %f\nGlobal max: %f\n", global_min, global_max);
+  }
+#endif
+
+#if TIME_COMM
+  double max_time;
+  MPI_Reduce(&total_time, &max_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  if (rank == 0) {
+    printf("Mean Comm Time: %fs\n", total_time / size);
   }
 #endif
 

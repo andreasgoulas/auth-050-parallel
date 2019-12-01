@@ -1,11 +1,15 @@
 #include "knnring.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <mpi.h>
 #include <cblas.h>
+
+// TIME_COMM controls whether to measure the communication cost.
+#define TIME_COMM 1
 
 #define SWAP(T, x, y) \
   do { \
@@ -177,6 +181,10 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+#if TIME_COMM
+  double total_time = 0.0;
+#endif
+
   for (int i = 0; i < size; ++i) {
     knnresult curr = kNN(y, x, n, n, d, k);
     int src = rank - i - 1;
@@ -200,6 +208,9 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
       break;
     }
 
+#if TIME_COMM
+    double time_start = MPI_Wtime();
+#endif
     int next = (rank + 1) % size;
     int prev = (rank - 1) % size;
     if (rank % 2 == 0) {
@@ -209,11 +220,24 @@ knnresult distrAllkNN(double* x, int n, int d, int k) {
       MPI_Send(y, n * d, MPI_DOUBLE, next, 0, MPI_COMM_WORLD);
       MPI_Recv(z, n * d, MPI_DOUBLE, prev, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
+#if TIME_COMM
+    double time_end = MPI_Wtime();
+    total_time += time_end - time_start;
+#endif
 
     SWAP(double*, y, z);
   }
 
   free(y);
   free(z);
+
+#if TIME_COMM
+  double max_time;
+  MPI_Reduce(&total_time, &max_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  if (rank == 0) {
+    printf("Mean Comm Time: %fs\n", total_time / size);
+  }
+#endif
+
   return result;
 }

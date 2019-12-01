@@ -20,8 +20,10 @@ int main(int argc, char** argv) {
   int k = atoi(argv[2]);
   int d = atoi(argv[3]);
 
-  srand(time(NULL));
+  int rank;
   MPI_Init(NULL, NULL);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  srand(rank ^ time(NULL));
 
   double* x = malloc(n * d * sizeof(double));
   for (int i = 0; i < n * d; ++i) {

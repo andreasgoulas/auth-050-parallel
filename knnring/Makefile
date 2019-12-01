@@ -8,19 +8,14 @@ all: lib
 
 lib: $(addsuffix .a, $(addprefix lib/knnring_, $(TYPES)))
 
-lib/%.a: %.o
+lib/%.a: obj/%.o
 	mkdir -p lib
 	ar rcs $@ $<
 
-knnring_sequential.o: src/knnring_sequential.c
-	$(CC) $(CFLAGS) -o $@ -c $<
-
-knnring_mpi_sync.o: src/knnring_mpi_sync.c
-	$(CC) $(CFLAGS) -o $@ -c $<
-
-knnring_mpi.o: src/knnring_mpi.c
+obj/%.o: src/%.c
+	mkdir -p obj
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm *.o lib/knnring_*.a
+	rm obj/knnring_*.o lib/knnring_*.a
 
