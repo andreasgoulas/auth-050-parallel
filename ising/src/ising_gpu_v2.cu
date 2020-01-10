@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TILE_SIZE 96   // Points per block
-#define BLOCK_SIZE 16  // Threads per block
+#define TILE_SIZE 32  // Points per block
+#define BLOCK_SIZE 8  // Threads per block
 
 #define CHECK(x) do {                                \
     cudaError_t err = (x);                           \

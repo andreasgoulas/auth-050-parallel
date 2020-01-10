@@ -1,7 +1,7 @@
 CC = gcc
 NVCC = nvcc
 CFLAGS = -O3 -Wall -Iinc
-NVFLAGS = -O3 -Iinc -dlink
+NVFLAGS =-Xptxas="-v -maxrregcount=62" -O3 -Iinc -dlink
 TYPES = sequential gpu_v1 gpu_v2 gpu_v3
 
 .PHONY: all lib clean
