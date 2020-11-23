@@ -10,7 +10,7 @@ double drand() {
 
 int main(int argc, char** argv) {
   if (argc != 4) {
-    printf("usage: %s n d k\n", argv[0]);
+    printf("usage: %s n k d\n", argv[0]);
     return -1;
   }
 
